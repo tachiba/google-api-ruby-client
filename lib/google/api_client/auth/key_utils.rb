@@ -78,16 +78,17 @@ module Google
       # @return [OpenSSL::PKey] The private key for signing assertions.
       def self.load_key(keyfile, passphrase, &block)
         begin
-          begin
-            content = File.open(keyfile, 'rb') { |io| io.read }
-          rescue
-            content = keyfile
+          is_file = File.file?(keyfile) rescue false
+          content = if is_file
+            File.open(keyfile, 'rb') { |io| io.read }
+          else
+            keyfile
           end
           block.call(content, passphrase)
         rescue OpenSSL::OpenSSLError
           raise ArgumentError.new("Invalid keyfile or passphrase")
-        end        
-      end  
+        end
+      end
     end
   end
 end
